@@ -56,7 +56,7 @@ public class FicheroIn {
         saltarBlancosYOtros();
         aux.setPosLin(linea);
         aux.setPosColumna(columna);
-        while (car != -1 && car >= 33) {
+        while (car != -1 && car >= 33) {            
             aux.addCaracter((char) car);
             leerChar();
         }
