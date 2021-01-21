@@ -46,7 +46,19 @@ public class FicheroIn {
         } catch (Exception e) {
             System.out.println("Error ");
         }
-        if(car != -1)numChar++;
+        if (car != -1) {
+            numChar++;
+        }
+        return car;
+    }
+
+    public int leerCaracter() {
+        try {
+            car = br.read();
+            saltarBlancosYOtros();
+        } catch (Exception e) {
+            System.out.println("Error ");
+        }
         return car;
     }
 
@@ -56,11 +68,13 @@ public class FicheroIn {
         saltarBlancosYOtros();
         aux.setPosLin(linea);
         aux.setPosColumna(columna);
-        while (car != -1 && car >= 33) {            
+        while (car != -1 && car >= 33) {
             aux.addCaracter((char) car);
             leerChar();
         }
-        if(!aux.vacia())numPal++;
+        if (!aux.vacia()) {
+            numPal++;
+        }
         return aux;
     }
 
@@ -68,11 +82,11 @@ public class FicheroIn {
         while (car != -1
                 && car <= 32
                 || (car > 34 && car <= 39)
-                || (car > 41 && car <44)
+                || (car > 41 && car < 44)
                 || car == 45
                 || car == 47
-                || (car >90 && car < 96)
-                || car >122) {
+                || (car > 90 && car < 96)
+                || car > 122) {
             leerChar();
         }
     }

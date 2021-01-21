@@ -6,26 +6,34 @@ import java.util.Random;
  * @author clara
  */
 public class AnalizadorFicheros {
+    
+     //Método principal
+    public static void main(String[] args) {
+        AnalizadorFicheros af = new AnalizadorFicheros();
+        af.inicio();
+    }
 
     LT lector = new LT();
     public int numCaracteres;
     public int numPalabras;
+    public int semilla;   
+    
 
     public void inicio() {
         String ficheroUsuario;
-        // System.out.println("Introduce un nombre de fichero para analizar (acabado en txt.): ");        
-        //ficheroUsuario = lector.leerLinea();
+        System.out.println("Introduce un nombre de fichero para analizar (acabado en txt.): ");        
+        ficheroUsuario = lector.leerLinea();
         //ficheroejemplo.txt
+        //El fichero de ejemplo se llama así
+        
         //Análisis inicial
-        FicheroIn fic = new FicheroIn("ficheroejemplo.txt");
+        FicheroIn fic = new FicheroIn(ficheroUsuario);
         Palabra pal = fic.leerPalabra();
-        while (!pal.vacia()) {
-            //System.out.println(pal);
+        while (!pal.vacia()) {            
             pal = fic.leerPalabra();
         }
         fic.cerrar();
-
-        //leerFicheroInicial(fic);
+        
         numCaracteres = fic.getChar();
         numPalabras = fic.getPalabra();
         if (numPalabras > 500) {
@@ -35,8 +43,7 @@ public class AnalizadorFicheros {
         System.out.println("El número total de palabras es: " + numPalabras);
         System.out.println("El número total de líneas es: " + fic.numLineas());
 
-        //FicheroOut fo = new FicheroOut();
-        //fo.escribir();
+        
         char opcion = ' ';
         while (opcion != 's') {  // mientras no salir
             System.out.println("\n\n");
@@ -51,6 +58,7 @@ public class AnalizadorFicheros {
             System.out.println("   5 Busca un texto");
             System.out.println("   6 Busca palabras repetidas");
             System.out.println("   7 Codifica el fichero");
+            System.out.println("   8 Descodifica el fichero");
             System.out.println("   s Salir");
             System.out.print("Opcion: ");
             opcion = lector.leerCaracter();
@@ -68,25 +76,28 @@ public class AnalizadorFicheros {
                     break;
                 case '4':
                     System.out.println("Introduce una palabra");
-                    buscaPalabra(lector.leerLinea().toCharArray());
-                    //buscaPalabra("hoa".toCharArray());
+                    buscaPalabra(lector.leerLinea().toCharArray());                    
                     break;
-                case '5':                    
+                case '5':
                     System.out.println("Introduce un texto");
                     char[] textoPasado = lector.leerLinea().toCharArray();
                     buscaTexto(aPalabras(textoPasado));
                     break;
-                case '6':
-                    //buscaPalabra(lector.leerLinea().toCharArray());
+                case '6':                    
                     buscaPalabrasRepetidas();
                     break;
                 case '7':
-                    codificar(52);
+                    System.out.println("Introduce una semilla:");
+                    semilla = lector.leerEntero();
+                    codificar(semilla);
                     System.out.println("El fichero se ha codificado correctamente");
-                    //int semilla = lector.leerEntero();
                     break;
-                case '8':
-                    //descodificar();
+                case '8':                    
+                    System.out.println("Introduce una semilla para descodificar: ");
+                    int semilladec = lector.leerEntero();
+                    System.out.println("Introduce un nombre de fichero para descodificar: ");
+                    String decodedFichero = lector.leerLinea();
+                    descodificar(semilladec, decodedFichero);
                     break;
 
             }
@@ -113,21 +124,25 @@ public class AnalizadorFicheros {
 
     //case 2
     public void numCaracteres() {
-        numAparicionesCaracter();
-        imprimir();
+        numAparicionesCaracter();        
+        for (int i = 0; i < arrayLetras.length; i++) {
+            if (arrayLetras[i] != null) {
+                char letra = arrayLetras[i].getCaracter();
+                int repe = arrayLetras[i].getNumRepeticiones();
+                System.out.println("Letra: " + letra + " repetida: " + repe);
+            }
+        }       
     }
 
     //case 3
     Palabra[] arrayPalabras;
-
     public void numPalabras() {
         FicheroIn fic = new FicheroIn("ficheroejemplo.txt");
         arrayPalabras = new Palabra[numPalabras];
         int ultimaPosicion = 0;
-
         for (int i = 0; i < numPalabras; i++) {
-            Palabra pal1 = fic.leerPalabra();
-            int index = existePalabra(pal1);
+            Palabra pal1 = fic.leerPalabra();              
+            int index = existeEnArrayPalabras(pal1); // si existe, devuelve su posición
             if (index == -1) {
                 arrayPalabras[ultimaPosicion] = pal1;
                 ultimaPosicion++;
@@ -137,8 +152,8 @@ public class AnalizadorFicheros {
         }
         fic.cerrar();
     }
-    //mirar palabra mas repetida       
-
+    
+    //imprime palabra más repetida del array de palabras del texto
     public void imprimirPalabra() {
         int max = 0;
         int j = 0;
@@ -223,6 +238,7 @@ public class AnalizadorFicheros {
         }
     }
 
+    //convierte el texto, char array, pasado por parámetro a palabras para poder buscarlas
     public Palabra[] aPalabras(char[] texto) {
         int espacios = 1;
         Palabra aux = new Palabra();
@@ -261,18 +277,19 @@ public class AnalizadorFicheros {
             pal2 = fic.leerPalabra();
         }
         fic.cerrar();
-
     }
 
     //case 7
+    Letra[] codificadas;
+    char[] alfa;
     public void codificar(int semilla) {
+        //Esta primera parte crea una tabla de codificación que usaremos posteriormente
         FicheroIn fic = new FicheroIn("ficheroejemplo.txt");
-        char[] alfa = "abcdefghijklmnopqrstuvwxyz .,:@?!\"()<>".toCharArray();
+        FicheroOut fo = new FicheroOut();
+        alfa = "abcdefghijklmnopqrstuvwxyz .,:@?!\"()<>".toCharArray();
         char[] cifrado = new char[alfa.length];
         boolean[] usado = new boolean[alfa.length];
-        Random r = new Random(semilla);
-        FicheroOut fo = new FicheroOut();
-
+        Random r = new Random(semilla);        
         for (int i = 0; i < alfa.length; i++) {
             usado[i] = false;
         }
@@ -286,60 +303,35 @@ public class AnalizadorFicheros {
             }
 
         }
-        Letra[] codificadas = new Letra[alfa.length];
-        int x = 0;
+        //crea un array de las letras del texto codificadas
+        codificadas = new Letra[alfa.length];
+        int codidx = 0;
         int index = fic.leerChar();
         boolean encontrado = false;
         while (index != -1) {
-            int idxExists = existe((char) index, codificadas);
+            int idxExists = existeLetra((char) index, codificadas);
             if (idxExists == -1) {
-                codificadas[x] = new Letra((char) index);
+                codificadas[codidx] = new Letra((char) index);
                 for (int i = 0; i < alfa.length; i++) {
-                    if (alfa[i] == index) {                        
-                        codificadas[x].setCifrado(cifrado[i]);
-                        fo.escribirCifrado(codificadas[x]);
-                        x++;
-                        i=alfa.length;
+                    if (alfa[i] == index) {
+                        codificadas[codidx].setCifrado(cifrado[i]);
+                        fo.escribirCifrado(codificadas[codidx]);
+                        codidx++;
+                        i = alfa.length;
                         encontrado = true;
                     }
                 }
                 if (!encontrado) {
-                    fo.escribirChar((char) index);                    
+                    fo.escribirChar((char) index);
                 }
-                encontrado=false;
+                encontrado = false;
             } else {
                 codificadas[idxExists].getCifrado();
                 fo.escribirCifrado(codificadas[idxExists]);
-
             }
             index = fic.leerChar();
         }
-
-        /* NO USADO
-        Palabra pal = fic.leerPalabra();
-        Letra[] codificadas = new Letra[alfa.length];        
-        int idx = 0;            
-
-        while (!pal.vacia()) {
-            //lee cada palabra y comprueba caracter a caracter si ya existe dentro de la array de Letras
-            for (int i = 0; i < pal.getLongitud(); i++) {
-                char car = pal.getLetras()[i];
-                int index = existe(car, codificadas); //si no existe devuelve -1, si existe devuelve su posición
-                if (index == -1) {
-                    codificadas[idx] = new Letra(car);                   
-                    codificadas[idx].setCifrado(cifrado[idx]); //lo asigna a una  letra
-                    fo.escribirCifrado(codificadas[idx]);
-                    idx++;
-                } else {
-                    fo.escribirCifrado(codificadas[index]);   //escribe en el fichero el caracter codificado de la letra leida   
-                }
-            }
-            pal = fic.leerPalabra();
-        }       
-         */
-        for (int i = 0;
-                i < alfa.length;
-                i++) {
+        for (int i = 0; i < alfa.length; i++) {
             System.out.println(alfa[i] + " es " + cifrado[i]);
         }
         fo.cerrar();
@@ -347,14 +339,34 @@ public class AnalizadorFicheros {
     }
 
 //case 7
-    public void descodificar(int semilla) {
+    public void descodificar(int semilladec, String decodedFichero) {        
         FicheroIn fic = new FicheroIn("fichero.txt.cod.txt");
-        fic.leerChar();
-
+        FicheroOut fo = new FicheroOut(decodedFichero);
+        int caracter = fic.leerChar();
+        if (semilladec == semilla) {
+            while (caracter != -1) {
+                for (int i = 0; i < codificadas.length; i++) {
+                    if (codificadas[i] == null) {
+                        fo.escribirChar((char) caracter);
+                        break;
+                    }
+                    if (caracter == codificadas[i].getCifrado()) {
+                        fo.escribirChar(codificadas[i].getCaracter());
+                        i = 0;
+                        break;
+                    }
+                }
+                caracter = fic.leerChar();
+            }
+            System.out.println("El fichero se ha descodificado correctamente");
+            fo.cerrar();
+        } else {
+            System.out.println("La semilla no es correcta o el fichero aún no ha sido codificado");
+        }
     }
 
-    //compara si dos palabras son iguales, pasadas como parámetro
-    public int existePalabra(Palabra pal) {
+    //comprueba si una palabra ya está en el array de palabras y devuelve su posición
+    public int existeEnArrayPalabras(Palabra pal) {
         int index = -1;
         boolean iguales = true;
         for (int i = 0; i < arrayPalabras.length; i++) {
@@ -378,21 +390,19 @@ public class AnalizadorFicheros {
                     return index;
                 }
             }
-
         }
         return index;
     }
 
 //Recorre todo el fichero añadiendo a una array de letras, la letra y el número de veces que está repetida
     Letra[] arrayLetras;
-
     public void numAparicionesCaracter() {
         FicheroIn fichero = new FicheroIn("ficheroejemplo.txt");
         arrayLetras = new Letra[numCaracteres];
         int ultimaPosicion = 0;
         for (int i = 0; i < numCaracteres; i++) {
             char caracter = (char) fichero.leerChar();
-            int index = existe(caracter, arrayLetras);
+            int index = existeLetra(caracter, arrayLetras);
             if (index == -1) {
                 //fichero.saltarBlancosYOtros();
                 if (esLetra(caracter)) {
@@ -407,6 +417,7 @@ public class AnalizadorFicheros {
         fichero.cerrar();
     }
 
+    //mira si el caracter introducido es un caracter apto para crear un objeto letra
     public boolean esLetra(char car) {
         if (!(car <= 32
                 || (car > 34 && car <= 39)
@@ -420,19 +431,10 @@ public class AnalizadorFicheros {
         return false;
     }
 
-    //imprime array letras
-    public void imprimir() {
-        for (int i = 0; i < arrayLetras.length; i++) {
-            if (arrayLetras[i] != null) {
-                char letra = arrayLetras[i].getCaracter();
-                int repe = arrayLetras[i].getNumRepeticiones();
-                System.out.println("Letra: " + letra + " repetida: " + repe);
-            }
-        }
-    }
+    
 
     //submétodo para mirar si existe una letra en la array de letras
-    public int existe(char caracter, Letra[] arrayL) {
+    public int existeLetra(char caracter, Letra[] arrayL) {
         int index = -1;
         for (int i = 0; i < arrayL.length; i++) {
             if (arrayL[i] == null) {
@@ -444,26 +446,6 @@ public class AnalizadorFicheros {
             }
         }
         return index;
-    }
-
-    /*
-    public int existe(char caracter) {
-        int index = -1;
-        for (int i = 0; i < arrayLetras.length; i++) {
-            if (arrayLetras[i] == null) {
-                return index;
-            } else {
-                if (arrayLetras[i].getCaracter() == caracter) {
-                    index = i;
-                }
-            }
-        }
-        return index;
-    }
-     */
-    public static void main(String[] args) {
-        AnalizadorFicheros af = new AnalizadorFicheros();
-        af.inicio();
     }
 
 }

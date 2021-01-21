@@ -18,6 +18,16 @@ public class FicheroOut {
             System.out.println("Error de apertura");
         }
     }
+    
+     public FicheroOut(String nombre) {
+        try {
+            fw = new FileWriter(nombre+".txt");
+            bw = new BufferedWriter(fw);
+
+        } catch (Exception e) {
+            System.out.println("Error de apertura");
+        }
+    }
 
     public void escribirChar(char c) {
         try {

@@ -48,6 +48,12 @@ public class Letra {
     public void setCifrado(char cifrado) {
         this.cifrado = cifrado;
     }
+
+    @Override
+    public String toString() {
+        return " "+ caracter + "cifrado: " + cifrado;
+    }
+    
     
 
 }
