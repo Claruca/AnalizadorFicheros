@@ -88,23 +88,60 @@ public class Palabra {
         }
         return true;
     }
-/*
-    public static boolean sonIgualesr(Palabra pal1, Palabra pal2) {
+    
+    //comprueba si una palabra ya está en el array de palabras y devuelve su posición
+    public static int existeEnArrayPalabras(Palabra pal, Palabra[] arrayPalabras) {
+        int index = -1;
         boolean iguales = true;
-        if (pal1.getLongitud() != pal2.getLongitud()) {
-            iguales = false;
-        }
-        if (pal1.getLongitud() == pal2.getLongitud()) {
-            for (int i = 0; i < pal1.getLongitud(); i++) {
-                if (pal1.getLetras()[i] != pal2.getLetras()[i]) {
+        for (int i = 0; i < arrayPalabras.length; i++) {
+            iguales = true; //inicializa variable en cada iteración
+            if (arrayPalabras[i] == null) {
+                return index;
+            } else {
+                if (arrayPalabras[i].getLongitud() != pal.getLongitud()) {
                     iguales = false;
-                    break;
+                }
+                if (arrayPalabras[i].getLongitud() == pal.getLongitud()) {
+                    for (int j = 0; j < arrayPalabras[i].getLongitud(); j++) {
+                        if (arrayPalabras[i].getLetras()[j] != pal.getLetras()[j]) {
+                            iguales = false;
+                            break;
+                        }
+                    }
+                }
+                if (iguales) {
+                    index = i;
+                    return index;
                 }
             }
         }
-        return iguales;
+        return index;
+    }    
+    
+    //convierte el texto, char array, pasado por parámetro a palabras para poder buscarlas
+    public static Palabra[] aPalabras(char[] texto) {
+        int espacios = 1;
+        Palabra aux = new Palabra();
+        for (int i = 0; i < texto.length; i++) {
+            if (texto[i] == 32) {
+                espacios++;
+            }
+        }
+        Palabra[] textoPal = new Palabra[espacios];
+        int idx = 0;
+        for (int i = 0; i < texto.length; i++) {
+            if (texto[i] != 32) {
+                aux.addCaracter(texto[i]);
+            } else {
+                textoPal[idx] = aux;
+                aux = new Palabra();
+                idx++;
+            }
+        }
+        textoPal[idx] = aux;
+        return textoPal;
     }
-*/
+
     @Override
     public String toString() {
         String res = "";

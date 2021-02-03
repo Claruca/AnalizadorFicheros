@@ -2,7 +2,7 @@ package analizadorficheros;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
-import java.util.Random;
+
 
 public class FicheroOut {
 
@@ -42,26 +42,7 @@ public class FicheroOut {
     public void escribirCifrado(Letra l) {
         try {
             bw.write(l.getCifrado());
-
-            /*
-            // Random semilla definida
-            Random rSem = new Random(123);
-            for (int i = 0; i < 10; i++) {
-                System.out.print(rSem.nextInt(10));
-            }
-            System.out.println("");
-            // Al ser la semilla definida por nosotros podemos generar la misma secuencia
-            Random rSem1 = new Random(123);
-            for (int i = 0; i < 10; i++) {
-                System.out.print(rSem1.nextInt(20));
-            }
-
-             */
-            //          bw.write("Prueba");
-            //        bw.newLine();
-            //      bw.write(56);
-            //    bw.close();
-            //  fw.close();
+           
         } catch (Exception e) {
             System.out.println("Error");
         }
